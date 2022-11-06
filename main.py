@@ -1,7 +1,6 @@
-# Program that takes an image containing text in english, arabic and chinese but displays only the bounding boxes of the text in english
+# Script that takes an image that conctains english, arabic and simplified chinese and displays the bounding boxes of the english text
 
 import cv2
-import numpy as np
 import pytesseract
 
 # Read image with opencv
@@ -10,44 +9,49 @@ img = cv2.imread("test/data/test.png")
 # Convert to gray
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-# Apply dilation and erosion to remove some noise
-kernel = np.ones((1, 1), np.uint8)
-gray = cv2.dilate(gray, kernel, iterations=1)
-gray = cv2.erode(gray, kernel, iterations=1)
+# Perform otsu threshold
+ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
-# Write image after removed noise
-# cv2.imwrite("removed_noise.png", gray)
+# Specify structure shape and kernel size.
+# Kernel size increases or decreases the area
+# of the rectangle to be detected.
+# A smaller value like (10, 10) will detect
+# each word instead of a sentence.
+rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (18, 18))
 
-# Apply threshold to get image with only black and white
-gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+# Appplying dilation on the threshold image
+dilation = cv2.dilate(thresh, rect_kernel, iterations=1)
 
-# Write the image after apply opencv to do some ...
-# cv2.imwrite("thres.png", gray)
+# Finding contours
+contours, hierarchy = cv2.findContours(
+    dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
+)
 
-# Recognize text with tesseract for python
-result = pytesseract.image_to_string(gray, lang="eng")
+# Looping through the identified contours
+# Then rectangular part is cropped and passed on
+# to pytesseract for extracting text from it
+# Extracted text is then written to a variable and concatenated
+final_text = ""
+for cnt in contours:
+    x, y, w, h = cv2.boundingRect(cnt)
 
-# Remove template file
-# os.remove(temp)
+    # Drawing a rectangle on copied image
+    rect = cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-# Print recognized text
-print(result)
+    # Cropping the text block for giving input to OCR
+    cropped = img[y : y + h, x : x + w]
 
-# Create a list of all the bounding boxes whitelisting the characters we want
-boxes = pytesseract.image_to_boxes(
-    img,
-    lang="eng",
-    config="--psm 6 --oem 3 -c tessedit_char_whitelist=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-)  # also try specifying "chi_sim" or "ara" for chinese and arabic
+    # Apply OCR on the cropped image
+    text = pytesseract.image_to_string(cropped, lang="eng+ara+chi_sim")
 
-# Loop through all the bounding boxes
-for b in boxes.splitlines():
-    # Split the bounding box into x, y, width, height
-    b = b.split(" ")
-    x, y, w, h = int(b[1]), int(b[2]), int(b[3]), int(b[4])
-    # Draw the bounding box
-    cv2.rectangle(img, (x, img.shape[0] - y), (w, img.shape[0] - h), (0, 255, 0), 1)
+    # Store the text in a variable
+    final_text = final_text + text
 
-# Show the image with the bounding box
-cv2.imshow("img", img)
-cv2.waitKey(0)
+# Count only english characters in the final text
+english_count = 0
+for char in final_text:
+    if ord(char) >= 65 and ord(char) <= 122:
+        english_count += 1
+
+# Print english count
+print(english_count)
