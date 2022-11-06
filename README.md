@@ -1,5 +1,3 @@
-# 🚧Under Construction🚧
-
 # CLCI (count latin characters in image)
 
 This is a simple python project that implements Google's tesseract-ocr in order to count the latin characters from a given image that also has arabic and/or chinese characters.
@@ -13,6 +11,8 @@ This script utilizes pytesseract as such you must have Tesseract OCR installed o
 pip dependencies can be installed via
 
 `pip install -r requirements.txt`
+
+Creating a python virtual environment is recommended
 
 # Caveats and limitations
 
