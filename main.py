@@ -3,6 +3,8 @@
 import cv2
 import pytesseract
 
+# Uncomment the line below to manually specify the path to tesseract installation. If you have it in path you don't need to do this 
+# pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 def detect_english_characters(path_to_image):
     # Read image with opencv
