@@ -3,8 +3,9 @@
 import cv2
 import pytesseract
 
-# Uncomment the line below to manually specify the path to tesseract installation. If you have it in path you don't need to do this 
+# Uncomment the line below to manually specify the path to tesseract installation. If you have it in path you don't need to do this
 # pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
 
 def detect_english_characters(path_to_image):
     # Read image with opencv
@@ -14,7 +15,7 @@ def detect_english_characters(path_to_image):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # Perform otsu threshold
-    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
     # Specify structure shape and kernel size.
     # Kernel size increases or decreases the area
@@ -27,7 +28,7 @@ def detect_english_characters(path_to_image):
     dilation = cv2.dilate(thresh, rect_kernel, iterations=1)
 
     # Finding contours
-    contours = cv2.findContours(
+    contours, hierarchy = cv2.findContours(
         dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
     )
 
