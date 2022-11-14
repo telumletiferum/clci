@@ -5,9 +5,9 @@ This is a simple python project that implements Google's tesseract-ocr and it's 
 # Requirements
 
 This script utilizes pytesseract as such you must have Tesseract OCR installed on system. This script also assumes that you have Tesseract added to your PATH.
-If you don't have it added to PATH for some or other reasons you need to add this line of code to main.py
+If you don't have it added to PATH for some or other reasons you need to uncomment this line of code in main.py
 
-```pytesseract.pytesseract.tesseract_cmd = 'System_path_to_tesseract.exe'```
+```pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"```
 
 For more info check [Tesseract documentation](https://tesseract-ocr.github.io/tessdoc/Installation.html).
 
